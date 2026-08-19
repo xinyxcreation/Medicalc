@@ -7,7 +7,7 @@ const rand=(min,max,step=1)=>+(min+Math.floor(Math.random()*(Math.floor((max-min
 const closeEnough=(a,b)=>a!==null&&Math.abs(a-b)<=Math.max(.01,Math.abs(b)*.005);
 
 async function init(){
- try{const d=await fetch("medicaments.json").then(r=>r.json());meds=d.medicaments||[];renderMeds();}
+ try{const d=await fetch("medicaments.json",{cache:"no-store"}).then(r=>r.json());meds=d.medicaments||[];renderMeds();$("medInfo").innerHTML=`<small>✅ Base BDPM chargée : <b>${meds.length.toLocaleString("fr-FR")}</b> médicaments • mise à jour : ${d.date_import||"locale"}</small>`;}
  catch(e){$("medInfo").textContent="Impossible de charger medicaments.json."}
 }
 function renderMeds(filter=""){

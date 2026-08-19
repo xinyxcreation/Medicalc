@@ -1,42 +1,64 @@
-name: Mise à jour BDPM
+name: 🔄 Téléchargement automatique BDPM
 
 on:
-  workflow_dispatch:
+  # Se lance automatiquement après chaque modification du projet sur master,
+  # sauf lorsqu'il s'agit uniquement du fichier généré medicaments.json.
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - medicaments.json
+
+  # Mise à jour automatique mensuelle.
   schedule:
     - cron: "30 3 5 * *"
+
+  # Permet aussi de lancer manuellement l'import depuis GitHub.
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  update-bdpm:
+  download-bdpm:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Récupérer le dépôt
+      - name: 📥 Récupérer Médicalc
         uses: actions/checkout@v4
         with:
           ref: master
 
-      - name: Installer Python
+      - name: 🐍 Installer Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
-      - name: Importer la BDPM
-        run: python import_bdpm.py
+      - name: 📦 Télécharger automatiquement la BDPM
+        run: |
+          python import_bdpm.py
 
-      - name: Vérifier le JSON
-        run: python -m json.tool medicaments.json > /dev/null
+      - name: ✅ Vérifier medicaments.json
+        run: |
+          python -m json.tool medicaments.json > /dev/null
+          python - <<'PY'
+          import json
+          with open("medicaments.json", encoding="utf-8") as f:
+              data=json.load(f)
+          count=len(data.get("medicaments", []))
+          print(f"BDPM importée : {count} médicaments")
+          if count < 100:
+              raise SystemExit("Import BDPM incomplet : moins de 100 médicaments.")
+          PY
 
-      - name: Commit si la base a changé
+      - name: 💾 Enregistrer la nouvelle base
         run: |
           git config user.name "medicalc-bdpm-bot"
           git config user.email "actions@github.com"
           git add medicaments.json
 
           if git diff --cached --quiet; then
-            echo "Aucune modification BDPM."
+            echo "Aucune modification de la BDPM."
           else
             git commit -m "chore: mise à jour automatique BDPM"
             git push origin master

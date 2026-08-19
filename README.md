@@ -44,3 +44,15 @@ Pour GitHub Pages, sélectionner **GitHub Actions** comme source de déploiement
 
 ## Recherche médicament
 Le champ médicament utilise une autocomplétion : les suggestions proviennent directement de `medicaments.json`, qui est alimenté par l'import BDPM. La recherche n'affiche que les premiers résultats correspondants et permet une sélection tactile sur mobile.
+
+
+## Téléchargement automatique BDPM
+
+La GitHub Action `.github/workflows/update-bdpm.yml` télécharge automatiquement les fichiers publics BDPM et reconstruit `medicaments.json`.
+
+Elle se lance :
+- automatiquement lors d'un push sur `master` (hors modification de `medicaments.json`) ;
+- automatiquement chaque mois ;
+- manuellement avec **Actions → 🔄 Téléchargement automatique BDPM → Run workflow**.
+
+La PWA charge ensuite automatiquement le `medicaments.json` mis à jour à l'ouverture. La BDPM est une base de référence ; les règles de calcul clinique restent séparées et doivent être validées.
