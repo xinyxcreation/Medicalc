@@ -1,0 +1,43 @@
+name: Mise à jour BDPM
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 5 * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-bdpm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Importer la BDPM
+        run: python import_bdpm.py
+
+      - name: Vérifier le JSON
+        run: python -m json.tool medicaments.json > /dev/null
+
+      - name: Commit si la base a changé
+        run: |
+          git config user.name "medicalc-bdpm-bot"
+          git config user.email "actions@github.com"
+          git add medicaments.json
+
+          if git diff --cached --quiet; then
+            echo "Aucune modification BDPM."
+          else
+            git commit -m "chore: mise à jour automatique BDPM"
+            git push origin master
+          fi

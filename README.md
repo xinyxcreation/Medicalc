@@ -32,3 +32,12 @@ Pour un usage clinique réel, validation pharmaceutique/médicale, contrôle des
 
 ## Logo
 L'icône PWA active utilise maintenant le concept n°2 (goutte rose + croix + symbole =). `logo-concept-medicalc.png` reste uniquement une planche de référence.
+
+## GitHub Actions — branche master
+
+Les workflows sont prêts pour la branche **master** :
+
+- `update-bdpm.yml` : mise à jour automatique de `medicaments.json` depuis la BDPM, avec possibilité de lancement manuel.
+- `deploy-pages.yml` : déploiement automatique de la PWA sur GitHub Pages à chaque push sur `master`.
+
+Pour GitHub Pages, sélectionner **GitHub Actions** comme source de déploiement dans les paramètres Pages du dépôt.

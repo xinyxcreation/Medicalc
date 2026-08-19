@@ -1,0 +1,2 @@
+Ce package est préparé pour la branche GitHub 'master'.
+Les GitHub Actions utilisent explicitement master.
