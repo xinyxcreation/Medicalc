@@ -25,3 +25,9 @@ L'application est un outil d'aide au calcul et ne remplace pas la prescription, 
 Le fichier `app.js` a été entièrement reconstruit. Les six onglets sont maintenant reliés
 à une navigation fonctionnelle, avec activation/désactivation des sections, recherche BDPM,
 calcul, prélèvement/dilution, perfusion et exercices.
+
+
+## Template V13
+Retour au template simple de la version précédente pour la présentation du médicament,
+avec un conteneur strictement centré à 900 px. La logique JavaScript fonctionnelle V12
+est conservée.

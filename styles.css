@@ -32,3 +32,26 @@ footer{position:fixed;bottom:0;left:0;right:0;height:48px;background:#fff;border
 .exercise-case h3{margin:0 0 8px;color:var(--pink)}
 .exercise-case p{font-size:13px}
 .exercise-case .primary-action,.exercise-case .secondary-action{width:100%;margin-top:10px}
+
+/* Template simple centré 900 px */
+.topbar-inner{width:min(900px,calc(100% - 28px));margin:0 auto}
+.shell{width:min(900px,calc(100% - 28px));margin:0 auto}
+.main-nav{max-width:900px;margin-left:auto;margin-right:auto}
+footer{padding-left:max(14px,calc((100% - 900px)/2));padding-right:max(14px,calc((100% - 900px)/2))}
+.main-card{max-width:900px;margin-left:auto;margin-right:auto}
+.main-card h2{font-size:20px;color:var(--pink);margin-bottom:18px}
+.form-grid.four{grid-template-columns:repeat(4,1fr)}
+.simple-presentation{margin-top:14px;border:1px solid #e5e2e5;border-radius:12px;padding:13px;background:#fff}
+.presentation-title{font-size:13px;font-weight:800;margin-bottom:10px}
+.empty-presentation{min-height:48px;display:flex;align-items:center;color:var(--muted);font-size:12px}
+.presentation-data{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+.presentation-data b{color:var(--text)}
+.actions{max-width:420px;margin-left:auto;margin-right:auto}
+.calc-results{margin-top:14px}
+@media(max-width:850px){
+  .form-grid.four{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .shell,.topbar-inner{width:calc(100% - 20px)}
+  .form-grid.four{grid-template-columns:1fr}
+}

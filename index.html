@@ -44,43 +44,62 @@
 
   <section id="calcul" class="page active">
     <div class="card main-card">
-      <h2>▣ &nbsp; Calcul de prescription</h2>
-      <label>Médicament (recherche BDPM)</label>
+      <h2>Calcul de prescription</h2>
+
+      <label>Médicament</label>
       <div class="autocomplete">
-        <input id="medSearch" autocomplete="off" placeholder="Rechercher un médicament (ex : amoxicilline, paracétamol...)">
+        <input id="medSearch" autocomplete="off" placeholder="Rechercher un médicament…">
         <div id="medSuggestions" class="suggestions hidden"></div>
       </div>
       <input id="med" type="hidden">
 
       <div class="form-grid four">
         <label>Voie d'administration
-          <select id="route"><option>Intraveineuse</option><option>Orale</option><option>Intramusculaire</option><option>Sous-cutanée</option></select>
+          <select id="route">
+            <option>Intraveineuse</option>
+            <option>Orale</option>
+            <option>Intramusculaire</option>
+            <option>Sous-cutanée</option>
+          </select>
         </label>
         <label>Dose prescrite
-          <div class="unit-input"><input id="value" type="number" step="0.01" placeholder="ex : 1"><select id="type"><option value="mg/dose">mg</option><option value="mg/kg/dose">mg/kg</option><option value="mg/jour">mg/jour</option><option value="mg/kg/jour">mg/kg/jour</option></select></div>
+          <div class="unit-input">
+            <input id="value" type="number" step="0.01" placeholder="Dose">
+            <select id="type">
+              <option value="mg/dose">mg</option>
+              <option value="mg/kg/dose">mg/kg</option>
+              <option value="mg/jour">mg/jour</option>
+              <option value="mg/kg/jour">mg/kg/jour</option>
+            </select>
+          </div>
         </label>
         <label>Poids du patient
-          <div class="unit-input"><input id="weight" type="number" step="0.01" placeholder="ex : 70"><span>kg</span></div><input id="bsa" type="hidden">
+          <div class="unit-input"><input id="weight" type="number" step="0.01" placeholder="Poids"><span>kg</span></div>
         </label>
         <label>Fréquence
-          <select id="freqText"><option value="1">Unique</option><option value="2">2 fois/jour</option><option value="3">3 fois/jour</option><option value="4">4 fois/jour</option><option value="6">6 fois/jour</option></select>
+          <select id="freqText">
+            <option value="1">Unique</option>
+            <option value="2">2 fois/jour</option>
+            <option value="3">3 fois/jour</option>
+            <option value="4">4 fois/jour</option>
+            <option value="6">6 fois/jour</option>
+          </select>
         </label>
       </div>
 
-      <div class="presentation-grid">
-        <div class="subcard">
-          <h3>Présentation disponible</h3>
-          <div id="presentationBox" class="empty-presentation">💊 <span>Sélectionnez un médicament<br>pour voir les présentations disponibles.</span></div>
-        </div>
-        <div class="subcard">
-          <h3>Données de la présentation</h3>
-          <div id="medInfo" class="presentation-data"><p>Concentration : <b>—</b></p><p>Volume : <b>—</b></p><p>Substance : <b>—</b></p></div>
+      <div class="simple-presentation">
+        <div class="presentation-title">Présentation</div>
+        <div id="presentationBox" class="empty-presentation">Sélectionnez un médicament pour voir ses présentations.</div>
+        <div id="medInfo" class="presentation-data">
+          <span>Concentration : <b>—</b></span>
+          <span>Volume : <b>—</b></span>
+          <span>Substance : <b>—</b></span>
         </div>
       </div>
 
       <div class="actions">
-        <button id="clear" class="secondary-action">♧ &nbsp; Réinitialiser</button>
-        <button id="calculateBtn" class="primary-action">▣ &nbsp; Calculer</button>
+        <button id="clear" class="secondary-action">Réinitialiser</button>
+        <button id="calculateBtn" class="primary-action">Calculer</button>
       </div>
 
       <div class="calc-results">
@@ -90,14 +109,7 @@
       </div>
     </div>
 
-    <div class="feature-strip">
-      <div><b>▣ &nbsp; Calcul rapide</b><small>Dose, volume, débit</small></div>
-      <div><b>♢ &nbsp; Vérification</b><small>Double contrôle</small></div>
-      <div><b>▥ &nbsp; Traçabilité</b><small>Historique des calculs</small></div>
-      <div><b>📖 &nbsp; Entraînement</b><small>Exercices aléatoires</small></div>
-    </div>
-
-    <div class="important">🛡️ <b>Important :</b> Cet outil ne remplace pas votre jugement clinique. Vérifiez toujours les résultats et respectez les protocoles en vigueur.</div>
+    <div class="important">⚠️ <b>Vérification obligatoire :</b> contrôler la prescription, la présentation, les unités, le RCP et le protocole avant toute administration.</div>
   </section>
 
   <section id="prelevement" class="page">
