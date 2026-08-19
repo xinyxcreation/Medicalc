@@ -84,3 +84,9 @@ Interface alignée sur le nouveau modèle fourni :
 - boutons Réinitialiser / Calculer ;
 - sections Prélèvement, Perfusion, Entraînement, Médicaments et Réglages ;
 - pied de page centré et aligné sur le même conteneur.
+
+
+## Correctif BDPM v11
+Le téléchargement de la BDPM utilise des URL de secours officielles. Le fichier des
+présentations peut actuellement répondre vide sur un des endpoints ANSM ; l'import
+essaie alors automatiquement l'autre endpoint officiel et son nom historique.

@@ -1,57 +1,87 @@
 #!/usr/bin/env python3
-"""Import automatique des fichiers publics BDPM via la plateforme ANSM actuelle."""
+"""Import BDPM robuste avec plusieurs points de téléchargement officiels."""
 
 from pathlib import Path
 import csv
 import datetime
 import json
 import ssl
+import urllib.error
 import urllib.parse
 import urllib.request
 
-BASE_URL = "https://rec-bdm.ansm.integra.fr/telechargement.php"
-
 FILES = {
     "specialites": "CIS_bdpm.txt",
-    "presentations": "CIS_CIP_bdpm.txt",
+    "presentations": "cis_cip_bdpm.txt",
     "compositions": "CIS_COMPO_bdpm.txt",
 }
 
+# Le portail ANSM actuel fonctionne pour les spécialités/compositions.
+# Le fichier des présentations peut momentanément être publié sur l'ancien
+# portail avec le nom historique en minuscules : on prévoit donc un fallback.
+URLS = {
+    "specialites": [
+        "https://rec-bdm.ansm.integra.fr/telechargement.php?fichier=CIS_bdpm.txt",
+        "https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=cis_bdpm.txt",
+    ],
+    "presentations": [
+        "https://rec-bdm.ansm.integra.fr/telechargement.php?fichier=cis_cip_bdpm.txt",
+        "https://rec-bdm.ansm.integra.fr/telechargement.php?fichier=CIS_CIP_bdpm.txt",
+        "https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=cis_cip_bdpm.txt",
+    ],
+    "compositions": [
+        "https://rec-bdm.ansm.integra.fr/telechargement.php?fichier=CIS_COMPO_bdpm.txt",
+        "https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=cis_compo_bdpm.txt",
+    ],
+}
 
-def download(filename: str) -> Path:
-    url = BASE_URL + "?fichier=" + urllib.parse.quote(filename)
-    print(f"Téléchargement : {url}")
 
+def fetch(url):
     request = urllib.request.Request(
         url,
-        headers={"User-Agent": "Mozilla/5.0 Medicalc/1.0", "Accept": "*/*"},
+        headers={
+            "User-Agent": "Mozilla/5.0 Medicalc/1.0",
+            "Accept": "*/*",
+        },
     )
-
     with urllib.request.urlopen(
         request,
         timeout=120,
         context=ssl.create_default_context(),
     ) as response:
-        data = response.read()
-
-    if len(data) < 1000:
-        raise RuntimeError(
-            f"Fichier BDPM invalide ou trop petit : {filename} ({len(data)} octets)"
-        )
-
-    path = Path(filename)
-    path.write_bytes(data)
-    print(f"  -> {len(data):,} octets")
-    return path
+        return response.read()
 
 
-def read_rows(path: Path):
+def download(key):
+    filename = FILES[key]
+    last_error = None
+
+    for url in URLS[key]:
+        print(f"Téléchargement {filename} : {url}")
+        try:
+            data = fetch(url)
+            if len(data) >= 1000:
+                path = Path(filename)
+                path.write_bytes(data)
+                print(f"  -> {len(data):,} octets")
+                return path
+            print(f"  -> réponse vide/trop petite ({len(data)} octets), fallback...")
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
+            last_error = exc
+            print(f"  -> échec : {exc}")
+
+    raise RuntimeError(
+        f"Impossible de télécharger {filename}. Dernière erreur : {last_error}"
+    )
+
+
+def read_rows(path):
     with path.open("r", encoding="latin-1", newline="") as handle:
         return list(csv.reader(handle, delimiter="\t"))
 
 
 def main():
-    files = {key: download(filename) for key, filename in FILES.items()}
+    files = {key: download(key) for key in FILES}
 
     specialites = read_rows(files["specialites"])
     presentations = read_rows(files["presentations"])
@@ -102,7 +132,10 @@ def main():
         json.dumps(output, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+
     print(f"Import BDPM terminé : {len(medicines):,} spécialités")
+    with_presentations = sum(bool(m["presentations"]) for m in medicines.values())
+    print(f"Présentations associées : {with_presentations:,}")
 
 
 if __name__ == "__main__":
