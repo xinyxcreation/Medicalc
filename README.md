@@ -31,3 +31,13 @@ calcul, prélèvement/dilution, perfusion et exercices.
 Retour au template simple de la version précédente pour la présentation du médicament,
 avec un conteneur strictement centré à 900 px. La logique JavaScript fonctionnelle V12
 est conservée.
+
+
+## Vérification calculs V14
+- mg/dose : dose par administration = prescription ; dose/jour = dose × fréquence.
+- mg/kg/dose : dose par administration = prescription × poids ; dose/jour = résultat × fréquence.
+- mg/jour : dose/jour = prescription ; dose/administration = résultat ÷ fréquence.
+- mg/kg/jour : dose/jour = prescription × poids ; dose/administration = résultat ÷ fréquence.
+- volume = dose par administration ÷ concentration.
+- le poids est contrôlé comme strictement positif pour les prescriptions pondérales.
+- la concentration peut être lue directement depuis la présentation ou déduite d'un libellé du type « 500 mg/5 mL ».

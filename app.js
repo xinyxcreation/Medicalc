@@ -117,10 +117,22 @@ function renderPresentation(m) {
 
   const show = index => {
     const p = presentations[index] || {};
-    const concentration = p.concentration_mg_ml ?? p.concentration ?? "—";
+    const derived = (() => {
+      const direct = [p.concentration_mg_ml, p.concentration, p.dose_mg_ml];
+      for (const c of direct) {
+        const x = parseFloat(c);
+        if (Number.isFinite(x) && x > 0) return x;
+      }
+      const text = String(p.libelle || "").replace(",", ".");
+      const match = text.match(/(\d+(?:\.\d+)?)\s*(mg|g)\s*\/\s*(\d+(?:\.\d+)?)\s*(ml|mL|L)/i);
+      if (!match) return null;
+      const dose = parseFloat(match[1]) * (match[2].toLowerCase() === "g" ? 1000 : 1);
+      const volume = parseFloat(match[3]) * (match[4].toLowerCase() === "l" ? 1000 : 1);
+      return volume > 0 ? dose / volume : null;
+    })();
     const volume = p.volume_ml ?? p.volume ?? "—";
     info.innerHTML = `
-      <p>Concentration : <b>${concentration}${concentration !== "—" ? " mg/mL" : ""}</b></p>
+      <p>Concentration : <b>${derived !== null ? fmt(derived) + " mg/mL" : "—"}</b></p>
       <p>Volume : <b>${volume}${volume !== "—" ? " mL" : ""}</b></p>
       <p>Substance : <b>${(m.substances || []).join(", ") || "—"}</b></p>`;
   };
@@ -138,13 +150,32 @@ function selectedMedicine() {
 function selectedConcentration() {
   const m = selectedMedicine();
   if (!m) return null;
+
   const select = $("presentationSelect");
-  const p = (m.presentations || [])[select ? Number(select.value) : 0] || {};
-  const candidates = [p.concentration_mg_ml, p.concentration, p.dose_mg_ml];
-  for (const c of candidates) {
-    const x = parseFloat(c);
+  const presentations = Array.isArray(m.presentations) ? m.presentations : [];
+  const p = presentations[select ? Number(select.value) : 0] || {};
+
+  const direct = [
+    p.concentration_mg_ml,
+    p.concentration,
+    p.dose_mg_ml
+  ];
+
+  for (const candidate of direct) {
+    const x = parseFloat(candidate);
     if (Number.isFinite(x) && x > 0) return x;
   }
+
+  // Try to derive mg/mL from a presentation label such as:
+  // "500 mg/5 ml" or "1 g/10 mL".
+  const text = String(p.libelle || "").replace(",", ".");
+  const match = text.match(/(\d+(?:\.\d+)?)\s*(mg|g)\s*\/\s*(\d+(?:\.\d+)?)\s*(ml|mL|L)/i);
+  if (match) {
+    const dose = parseFloat(match[1]) * (match[2].toLowerCase() === "g" ? 1000 : 1);
+    const volume = parseFloat(match[3]) * (match[4].toLowerCase() === "l" ? 1000 : 1);
+    if (volume > 0) return dose / volume;
+  }
+
   return null;
 }
 
@@ -154,23 +185,44 @@ function calc() {
   const freq = parseFloat($("freqText")?.value || "1");
   const type = $("type")?.value || "mg/dose";
 
+  let perDose = null;
   let daily = null;
-  if (value !== null) {
-    if (type === "mg/kg/jour") daily = weight !== null ? value * weight : null;
-    else if (type === "mg/jour") daily = value;
-    else if (type === "mg/kg/dose") daily = weight !== null ? value * weight * freq : null;
-    else daily = value * freq;
+
+  if (value !== null && value >= 0 && freq > 0) {
+    switch (type) {
+      case "mg/kg/dose":
+        if (weight !== null && weight > 0) perDose = value * weight;
+        break;
+      case "mg/kg/jour":
+        if (weight !== null && weight > 0) {
+          daily = value * weight;
+          perDose = daily / freq;
+        }
+        break;
+      case "mg/jour":
+        daily = value;
+        perDose = daily / freq;
+        break;
+      case "mg/dose":
+      default:
+        perDose = value;
+        daily = value * freq;
+        break;
+    }
+
+    if (daily === null && perDose !== null) daily = perDose * freq;
   }
 
-  const per = daily !== null && freq > 0 ? daily / freq : null;
   const concentration = selectedConcentration();
-  const volume = per !== null && concentration ? per / concentration : null;
+  const volume = perDose !== null && concentration > 0
+    ? perDose / concentration
+    : null;
 
   setText("daily", fmt(daily));
-  setText("per", fmt(per));
+  setText("per", fmt(perDose));
   setText("vol", fmt(volume));
-  setText("vol2", fmt(volume));
-  return { daily, per, volume };
+
+  return { daily, perDose, volume };
 }
 
 function calcPrelevement() {
@@ -277,9 +329,12 @@ function setupEvents() {
     }
   });
 
-  document.querySelectorAll("#calcul input,#calcul select").forEach(el => {
-    el.addEventListener("input", calc);
-    el.addEventListener("change", calc);
+  ["value", "weight", "freqText", "type", "route"].forEach(id => {
+    const el = $(id);
+    if (el) {
+      el.addEventListener("input", calc);
+      el.addEventListener("change", calc);
+    }
   });
   document.querySelectorAll("#prelevement input").forEach(el => el.addEventListener("input", calcPrelevement));
   document.querySelectorAll("#perfusion input").forEach(el => el.addEventListener("input", calcPerfusion));
