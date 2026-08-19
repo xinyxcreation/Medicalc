@@ -19,3 +19,9 @@ Conteneur desktop de 900 px centré, thème rose, navigation Calcul / Prélèvem
 
 ## Sécurité
 L'application est un outil d'aide au calcul et ne remplace pas la prescription, le RCP, les protocoles locaux ni la validation clinique.
+
+
+## Correctif navigation v12
+Le fichier `app.js` a été entièrement reconstruit. Les six onglets sont maintenant reliés
+à une navigation fonctionnelle, avec activation/désactivation des sections, recherche BDPM,
+calcul, prélèvement/dilution, perfusion et exercices.
