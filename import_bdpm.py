@@ -8,10 +8,10 @@ from pathlib import Path
 import csv, json, urllib.request, datetime, ssl
 
 BASE = "https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier="
-FILES = {
-    "specialites": "cis_bdpm.txt",
-    "presentations": "cis_cip_bdpm.txt",
-    "compositions": "cis_compo_bdpm.txt",
+# Noms officiels des fichiers BDPM (respecter la casse).\nFILE_NAMES_OFFICIELS = True\nFILES = {
+    "specialites": "CIS_bdpm.txt",
+    "presentations": "CIS_CIP_bdpm.txt",
+    "compositions": "CIS_COMPO_bdpm.txt",
 }
 
 def download(name):

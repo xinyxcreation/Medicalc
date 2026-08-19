@@ -56,3 +56,13 @@ Elle se lance :
 - manuellement avec **Actions → 🔄 Téléchargement automatique BDPM → Run workflow**.
 
 La PWA charge ensuite automatiquement le `medicaments.json` mis à jour à l'ouverture. La BDPM est une base de référence ; les règles de calcul clinique restent séparées et doivent être validées.
+
+
+### Correctif BDPM
+Le téléchargement utilise les noms officiels et sensibles à la casse :
+`CIS_bdpm.txt`, `CIS_CIP_bdpm.txt`, `CIS_COMPO_bdpm.txt`.
+L'erreur 404 venait de l'utilisation de `cis_bdpm.txt`.
+
+
+## Nouveau template
+Interface recentrée avec une largeur maximale d'environ 1008 px, cartes larges, en-tête rose et navigation en onglets, inspirée du gabarit fourni tout en conservant l'identité Médicalc.
