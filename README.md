@@ -68,7 +68,8 @@ L'erreur 404 venait de l'utilisation de `cis_bdpm.txt`.
 Interface recentrée avec une largeur maximale d'environ 1008 px, cartes larges, en-tête rose et navigation en onglets, inspirée du gabarit fourni tout en conservant l'identité Médicalc.
 
 
-## Correctif import BDPM v7
-
-`import_bdpm.py` a été réécrit proprement pour supprimer l'erreur `IndentationError`.
-La GitHub Action vérifie maintenant la syntaxe Python avec `py_compile` avant de télécharger la BDPM.
+## Correctif BDPM v8
+L'import ne construit plus l'URL `telechargement.php?fichier=...` lui-même.
+Il lit d'abord la page officielle de téléchargement de la BDPM et découvre les
+liens réellement publiés par le site. Cela évite les erreurs 404 lorsque le site
+change son mécanisme d'URL.
