@@ -41,3 +41,6 @@ Les workflows sont prêts pour la branche **master** :
 - `deploy-pages.yml` : déploiement automatique de la PWA sur GitHub Pages à chaque push sur `master`.
 
 Pour GitHub Pages, sélectionner **GitHub Actions** comme source de déploiement dans les paramètres Pages du dépôt.
+
+## Recherche médicament
+Le champ médicament utilise une autocomplétion : les suggestions proviennent directement de `medicaments.json`, qui est alimenté par l'import BDPM. La recherche n'affiche que les premiers résultats correspondants et permet une sélection tactile sur mobile.

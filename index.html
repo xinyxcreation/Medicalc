@@ -30,8 +30,11 @@
   <section id="calcul" class="page active">
     <div class="card">
       <h2>Médicament</h2>
-      <input id="medSearch" placeholder="Rechercher un médicament…">
-      <select id="med"></select>
+      <div class="autocomplete">
+        <input id="medSearch" autocomplete="off" placeholder="Rechercher un médicament…">
+        <div id="medSuggestions" class="suggestions hidden"></div>
+      </div>
+      <input id="med" type="hidden">
       <div id="medInfo"></div>
     </div>
 

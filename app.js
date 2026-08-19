@@ -11,9 +11,29 @@ async function init(){
  catch(e){$("medInfo").textContent="Impossible de charger medicaments.json."}
 }
 function renderMeds(filter=""){
- const q=filter.toLowerCase();
- const list=meds.filter(m=>(m.nom+" "+(m.substances||[]).join(" ")).toLowerCase().includes(q));
- $("med").innerHTML='<option value="">— Choisir —</option>'+list.map(m=>`<option value="${m.id}">${m.nom}</option>`).join("");
+ const q=filter.trim().toLowerCase();
+ const box=$("medSuggestions");
+ if(!q){box.classList.add("hidden");box.innerHTML="";return}
+ const list=meds.filter(m=>(m.nom+" "+(m.substances||[]).join(" ")).toLowerCase().includes(q)).slice(0,12);
+ if(!list.length){
+   box.innerHTML='<div class="suggestion"><small>Aucun médicament trouvé dans la base locale BDPM.</small></div>';
+   box.classList.remove("hidden");return;
+ }
+ box.innerHTML=list.map(m=>{
+   const sub=(m.substances||[]).slice(0,2).join(" • ");
+   return `<div class="suggestion" data-med-id="${m.id}"><b>${m.nom}</b><small>${sub||m.forme||"Présentation BDPM"}</small></div>`;
+ }).join("");
+ box.classList.remove("hidden");
+ box.querySelectorAll(".suggestion[data-med-id]").forEach(el=>{
+   el.onclick=()=>{
+     const m=meds.find(x=>x.id===el.dataset.medId);
+     if(!m)return;
+     $("med").value=m.id;
+     $("medSearch").value=m.nom;
+     box.classList.add("hidden");
+     showMed(m.id);
+   };
+ });
 }
 function showMed(id){
  const m=meds.find(x=>x.id===id);
@@ -80,11 +100,14 @@ function checkQuiz(){
 }
 
 document.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",calc));
-document.querySelectorAll("select").forEach(x=>x.addEventListener("change",()=>{calc();if(x.id==="med")showMed(x.value)}));
+document.querySelectorAll("select").forEach(x=>x.addEventListener("change",calc));
 $("medSearch").addEventListener("input",()=>renderMeds($("medSearch").value));
+document.addEventListener("click",e=>{
+ if(!e.target.closest(".autocomplete"))$("medSuggestions").classList.add("hidden");
+});
 $("createExercise").onclick=createExercise;
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.page).classList.add("active")});
-$("clear").onclick=()=>{document.querySelectorAll("input:not([name='level'])").forEach(x=>x.value="");$("freq").value=1;calc()};
+$("clear").onclick=()=>{document.querySelectorAll("input:not([name='level'])").forEach(x=>x.value="");$("freq").value=1;$("med").value="";$("medSearch").value="";$("medSuggestions").classList.add("hidden");$("medInfo").textContent="";calc()};
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;$("install").hidden=false});
 $("install").onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$("install").hidden=true}};
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
