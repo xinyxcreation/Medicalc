@@ -1,19 +1,13 @@
 name: 🔄 Téléchargement automatique BDPM
 
 on:
-  # Se lance automatiquement après chaque modification du projet sur master,
-  # sauf lorsqu'il s'agit uniquement du fichier généré medicaments.json.
   push:
     branches:
       - master
     paths-ignore:
       - medicaments.json
-
-  # Mise à jour automatique mensuelle.
   schedule:
     - cron: "30 3 5 * *"
-
-  # Permet aussi de lancer manuellement l'import depuis GitHub.
   workflow_dispatch:
 
 permissions:
@@ -34,21 +28,23 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: 📦 Télécharger automatiquement la BDPM
-        run: |
-          python import_bdpm.py
+      - name: 🔎 Vérifier la syntaxe
+        run: python -m py_compile import_bdpm.py
 
-      - name: ✅ Vérifier medicaments.json
+      - name: 📦 Télécharger automatiquement la BDPM
+        run: python import_bdpm.py
+
+      - name: ✅ Vérifier la base
         run: |
           python -m json.tool medicaments.json > /dev/null
           python - <<'PY'
           import json
           with open("medicaments.json", encoding="utf-8") as f:
-              data=json.load(f)
-          count=len(data.get("medicaments", []))
-          print(f"BDPM importée : {count} médicaments")
+              data = json.load(f)
+          count = len(data.get("medicaments", []))
+          print(f"BDPM importée : {count} spécialités")
           if count < 100:
-              raise SystemExit("Import BDPM incomplet : moins de 100 médicaments.")
+              raise SystemExit("Import BDPM incomplet.")
           PY
 
       - name: 💾 Enregistrer la nouvelle base

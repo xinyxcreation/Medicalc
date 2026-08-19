@@ -66,3 +66,9 @@ L'erreur 404 venait de l'utilisation de `cis_bdpm.txt`.
 
 ## Nouveau template
 Interface recentrée avec une largeur maximale d'environ 1008 px, cartes larges, en-tête rose et navigation en onglets, inspirée du gabarit fourni tout en conservant l'identité Médicalc.
+
+
+## Correctif import BDPM v7
+
+`import_bdpm.py` a été réécrit proprement pour supprimer l'erreur `IndentationError`.
+La GitHub Action vérifie maintenant la syntaxe Python avec `py_compile` avant de télécharger la BDPM.
