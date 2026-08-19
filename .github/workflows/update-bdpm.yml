@@ -1,64 +1,57 @@
-name: 🔄 Téléchargement automatique BDPM
+name: 🔄 BDPM — mise à jour automatique
 
 on:
-  # Se lance automatiquement après chaque modification du projet sur master,
-  # sauf lorsqu'il s'agit uniquement du fichier généré medicaments.json.
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - medicaments.json
-
-  # Mise à jour automatique mensuelle.
+  workflow_dispatch:
   schedule:
     - cron: "30 3 5 * *"
-
-  # Permet aussi de lancer manuellement l'import depuis GitHub.
-  workflow_dispatch:
+  push:
+    branches: [master]
+    paths-ignore:
+      - medicaments.json
 
 permissions:
   contents: write
 
 jobs:
-  download-bdpm:
+  update:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Récupérer Médicalc
+      - name: Checkout master
         uses: actions/checkout@v4
         with:
           ref: master
 
-      - name: 🐍 Installer Python
+      - name: Installer Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
-      - name: 📦 Télécharger automatiquement la BDPM
-        run: |
-          python import_bdpm.py
+      - name: Vérifier la syntaxe
+        run: python -m py_compile import_bdpm.py
 
-      - name: ✅ Vérifier medicaments.json
+      - name: Télécharger et importer la BDPM
+        run: python import_bdpm.py
+
+      - name: Vérifier la base générée
         run: |
-          python -m json.tool medicaments.json > /dev/null
           python - <<'PY'
           import json
           with open("medicaments.json", encoding="utf-8") as f:
               data=json.load(f)
-          count=len(data.get("medicaments", []))
-          print(f"BDPM importée : {count} médicaments")
-          if count < 100:
-              raise SystemExit("Import BDPM incomplet : moins de 100 médicaments.")
+          meds=data.get("medicaments", [])
+          print("Spécialités :", len(meds))
+          print("Avec présentations :", sum(bool(m.get("presentations")) for m in meds))
+          if len(meds) < 1000:
+              raise SystemExit("La base BDPM semble incomplète.")
           PY
 
-      - name: 💾 Enregistrer la nouvelle base
+      - name: Commit si changement
         run: |
           git config user.name "medicalc-bdpm-bot"
           git config user.email "actions@github.com"
           git add medicaments.json
-
           if git diff --cached --quiet; then
-            echo "Aucune modification de la BDPM."
+            echo "Aucune modification."
           else
             git commit -m "chore: mise à jour automatique BDPM"
             git push origin master
