@@ -36,7 +36,6 @@ jobs:
 
       - name: 📦 Télécharger automatiquement la BDPM
         run: |
-          python -m py_compile import_bdpm.py
           python import_bdpm.py
 
       - name: ✅ Vérifier medicaments.json

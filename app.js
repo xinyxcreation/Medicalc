@@ -13,8 +13,8 @@ async function init(){
 function renderMeds(filter=""){
  const q=filter.trim().toLowerCase();
  const box=$("medSuggestions");
- if(!q){box.classList.add("hidden");box.innerHTML="";return}
- const list=meds.filter(m=>(m.nom+" "+(m.substances||[]).join(" ")).toLowerCase().includes(q)).slice(0,12);
+ const list=meds.filter(m=>!q || (m.nom+" "+(m.substances||[]).join(" ")).toLowerCase().includes(q))
+   .sort((a,b)=>a.nom.localeCompare(b.nom,"fr")).slice(0,20);
  if(!list.length){
    box.innerHTML='<div class="suggestion"><small>Aucun médicament trouvé dans la base locale BDPM.</small></div>';
    box.classList.remove("hidden");return;
@@ -37,12 +37,35 @@ function renderMeds(filter=""){
 }
 function showMed(id){
  const m=meds.find(x=>x.id===id);
- if(!m){$("medInfo").textContent="";return}
- const p=m.presentations?.[0];
- $("medInfo").innerHTML=`<b>${m.nom}</b>${m.forme?`<br>Forme : ${m.forme}`:""}${m.voies?.length?`<br>Voie(s) : ${m.voies.join(", ")}`:""}${m.substances?.length?`<br>Substance : ${m.substances.join(", ")}`:""}${p?.libelle?`<br>Présentation : ${p.libelle}`:""}<br><br>⚠️ Les données BDPM ne remplacent pas les règles de prescription, de reconstitution ou de dilution du RCP/protocole.`;
+ renderPresentation(m);
+ if(!m)return;
+ $("medInfo").dataset.fullInfo=`${m.nom}${m.forme?" • "+m.forme:""}${m.voies?.length?" • "+m.voies.join(", "):""}`;
+}
+}
+
+function renderPresentation(m){
+  const box=$("presentationBox");
+  const data=$("medInfo");
+  const p=m?.presentations?.[0];
+  if(!m){
+    box.innerHTML='💊 <span>Sélectionnez un médicament<br>pour voir les présentations disponibles.</span>';
+    data.innerHTML='<p>Concentration : <b>—</b></p><p>Volume : <b>—</b></p><p>Substance : <b>—</b></p>';
+    return;
+  }
+  const presentations=m.presentations||[];
+  box.innerHTML=presentations.length
+    ? `<select id="presentationSelect">${presentations.map((x,i)=>`<option value="${i}">${x.libelle||("Présentation "+(i+1))}</option>`).join("")}</select>`
+    : '<span>Aucune présentation renseignée dans la base BDPM.</span>';
+  const show=i=>{
+    const x=presentations[i]||{};
+    data.innerHTML=`<p>Concentration : <b>${x.concentration_mg_ml??"—"}${x.concentration_mg_ml!=null?" mg/mL":""}</b></p><p>Volume : <b>${x.volume_ml??"—"}${x.volume_ml!=null?" mL":""}</b></p><p>Substance : <b>${(m.substances||[]).join(", ")||"—"}</b></p>`;
+  };
+  if(p)show(0);
+  const ps=$("presentationSelect");
+  if(ps)ps.onchange=()=>show(+ps.value);
 }
 function calc(){
- const t=$("type").value,v=n("value"),w=n("weight"),f=n("freq"),b=n("bsa");
+ const t=$("type").value,v=n("value"),w=n("weight"),f=parseFloat($("freqText")?.value||$("freq")?.value||1),b=n("bsa");
  $("bsaWrap").classList.toggle("hidden",!(t.includes("m²")));
  let d=null,p=null;
  if(v!==null){
@@ -55,7 +78,7 @@ function calc(){
  }
  $("daily").textContent=fmt(d);$("per").textContent=fmt(p);
  const dose=n("takeDose")??p,c=n("conc");
- $("vol").textContent=fmt(dose!==null&&c>0?dose/c:null);
+ $("vol").textContent=fmt(dose!==null&&c>0?dose/c:null); if($("vol2"))$("vol2").textContent=$("vol").textContent;
  const c1=n("c1"),v1=n("v1"),c2=n("c2"),vf=n("vf");
  const v2=c1!==null&&v1!==null&&c2>0?c1*v1/c2:null;
  $("v2").textContent=fmt(v2);$("dil").textContent=fmt(v2!==null&&v1!==null?(vf!==null?vf:v2)-v1:null);
@@ -99,16 +122,74 @@ function checkQuiz(){
  $("exerciseResult").innerHTML=html;
 }
 
+
 document.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",calc));
 document.querySelectorAll("select").forEach(x=>x.addEventListener("change",calc));
-$("medSearch").addEventListener("input",()=>renderMeds($("medSearch").value));
+
+function activatePage(id){
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+}
+document.querySelectorAll(".nav-item").forEach(b=>b.onclick=()=>activatePage(b.dataset.page));
+document.querySelectorAll("[data-page-target]").forEach(b=>b.onclick=()=>activatePage(b.dataset.pageTarget));
+
+function renderSuggestions(inputId,boxId){
+  const q=$(inputId).value.trim().toLowerCase();
+  const box=$(boxId);
+  const list=meds.filter(m=>!q || (m.nom+" "+(m.substances||[]).join(" ")).toLowerCase().includes(q))
+    .sort((a,b)=>a.nom.localeCompare(b.nom,"fr")).slice(0,20);
+  box.innerHTML=list.length?list.map(m=>`<div class="suggestion" data-id="${m.id}"><b>${m.nom}</b><small>${(m.substances||[]).slice(0,2).join(" • ")||m.forme||"BDPM"}</small></div>`).join("")
+  :'<div class="suggestion"><small>Aucun résultat dans la base locale.</small></div>';
+  box.classList.remove("hidden");
+  box.querySelectorAll("[data-id]").forEach(el=>el.onclick=()=>{
+    const m=meds.find(x=>x.id===el.dataset.id);
+    if(!m)return;
+    $("med").value=m.id;
+    $("medSearch").value=m.nom;
+    box.classList.add("hidden");
+    showMed(m.id);
+  });
+}
+$("medSearch").addEventListener("focus",()=>renderSuggestions("medSearch","medSuggestions"));
+$("medSearch").addEventListener("input",()=>renderSuggestions("medSearch","medSuggestions"));
+$("medSearch2").addEventListener("focus",()=>renderSuggestions("medSearch2","medSuggestions2"));
+$("medSearch2").addEventListener("input",()=>renderSuggestions("medSearch2","medSuggestions2"));
+
 document.addEventListener("click",e=>{
- if(!e.target.closest(".autocomplete"))$("medSuggestions").classList.add("hidden");
+  if(!e.target.closest(".autocomplete")){
+    document.querySelectorAll(".suggestions").forEach(x=>x.classList.add("hidden"));
+  }
 });
+
+$("calculateBtn").onclick=calc;
 $("createExercise").onclick=createExercise;
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.page).classList.add("active")});
-$("clear").onclick=()=>{document.querySelectorAll("input:not([name='level'])").forEach(x=>x.value="");$("freq").value=1;$("med").value="";$("medSearch").value="";$("medSuggestions").classList.add("hidden");$("medInfo").textContent="";calc()};
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;$("install").hidden=false});
-$("install").onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$("install").hidden=true}};
+$("clearFooter").onclick=()=>$("clear").click();
+
+$("clear").onclick=()=>{
+  document.querySelectorAll("input:not([type=hidden]):not([name='level'])").forEach(x=>x.value="");
+  if($("freqText"))$("freqText").value="1";
+  if($("med"))$("med").value="";
+  if($("medSearch"))$("medSearch").value="";
+  if($("presentationBox"))$("presentationBox").innerHTML='💊 <span>Sélectionnez un médicament<br>pour voir les présentations disponibles.</span>';
+  calc();
+};
+
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();deferred=e;if($("install"))$("install").hidden=false;
+});
+if($("install"))$("install").onclick=async()=>{
+  if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$("install").hidden=true;}
+};
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+
+async function init(){
+  try{
+    const d=await fetch("medicaments.json",{cache:"no-store"}).then(r=>r.json());
+    meds=d.medicaments||[];
+    if($("bdpmStatus"))$("bdpmStatus").innerHTML=`✅ Base BDPM chargée : <b>${meds.length.toLocaleString("fr-FR")}</b> médicaments • mise à jour : ${d.date_import||"locale"}`;
+  }catch(e){
+    meds=[];
+    if($("bdpmStatus"))$("bdpmStatus").textContent="⚠️ Base BDPM indisponible.";
+  }
+}
 init();calc();

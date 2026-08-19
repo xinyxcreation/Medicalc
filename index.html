@@ -3,117 +3,176 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#d84f83">
+<meta name="theme-color" content="#ef2360">
 <meta name="description" content="Médicalc — Calcul, Vérification, Entraînement">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="styles.css">
 <title>Médicalc</title>
 </head>
 <body>
-<header>
-  <div>
-    <h1>Médicalc</h1>
-    <p>Calcul • Vérification • Entraînement</p>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-icon"><span>+</span><b>=</b></div>
+      <div>
+        <h1>Médicalc</h1>
+        <p>Calcul • Vérification • Entraînement</p>
+      </div>
+    </div>
+    <button id="install" class="refresh" hidden>↻<small>Installer</small></button>
   </div>
-  <button id="install" hidden>Installer</button>
 </header>
 
-<main>
-  <div class="notice"><b>⚠️ Vérification obligatoire</b><br>
-  Les résultats sont mathématiques. Vérifier systématiquement prescription, médicament, présentation, unités, voie, RCP/protocole et règles locales avant toute administration.</div>
-
-  <nav class="tabs">
-    <button class="tab active" data-page="calcul">Calcul</button>
-    <button class="tab" data-page="exercice">Exercice</button>
+<main class="shell">
+  <nav class="main-nav">
+    <button class="nav-item active" data-page="calcul">▣ <span>Calcul de prescription</span></button>
+    <button class="nav-item" data-page="prelevement">💧 <span>Prélèvement / Dilution</span></button>
+    <button class="nav-item" data-page="perfusion">▣ <span>Perfusion</span></button>
+    <button class="nav-item" data-page="exercice">🎓 <span>Entraînement</span></button>
+    <button class="nav-item" data-page="medicaments">💊 <span>Médicaments</span></button>
+    <button class="nav-item" data-page="reglages">⚙ <span>Réglages</span></button>
   </nav>
 
+  <section class="hero-note">
+    <div class="hero-note-icon">♥</div>
+    <div class="hero-note-text">
+      <b>Outil d'aide au calcul pour les professionnels de santé</b>
+      <span>Vérifiez toujours le résultat et respectez les protocoles de votre établissement.</span>
+    </div>
+    <button class="exercise-cta" data-page-target="exercice">◎ &nbsp; Mode exercice &nbsp; →</button>
+  </section>
+
   <section id="calcul" class="page active">
-    <div class="card">
-      <h2>Médicament</h2>
+    <div class="card main-card">
+      <h2>▣ &nbsp; Calcul de prescription</h2>
+      <label>Médicament (recherche BDPM)</label>
       <div class="autocomplete">
-        <input id="medSearch" autocomplete="off" placeholder="Rechercher un médicament…">
+        <input id="medSearch" autocomplete="off" placeholder="Rechercher un médicament (ex : amoxicilline, paracétamol...)">
         <div id="medSuggestions" class="suggestions hidden"></div>
       </div>
       <input id="med" type="hidden">
-      <div id="medInfo"></div>
-    </div>
 
-    <div class="card">
-      <h2>Prescription</h2>
-      <div class="grid">
-        <label>Type
-          <select id="type">
-            <option value="">—</option>
-            <option>mg/kg/jour</option>
-            <option>mg/kg/dose</option>
-            <option>mg/jour</option>
-            <option>mg/dose</option>
-            <option>mg/m²/jour</option>
-            <option>mg/m²/dose</option>
-          </select>
+      <div class="form-grid four">
+        <label>Voie d'administration
+          <select id="route"><option>Intraveineuse</option><option>Orale</option><option>Intramusculaire</option><option>Sous-cutanée</option></select>
         </label>
-        <label>Valeur<input id="value" type="number" step="0.01"></label>
-        <label>Poids<input id="weight" type="number" step="0.01"><span>kg</span></label>
-        <label>Fréquence<input id="freq" type="number" step="1" value="1"><span>administrations/jour</span></label>
+        <label>Dose prescrite
+          <div class="unit-input"><input id="value" type="number" step="0.01" placeholder="ex : 1"><select id="type"><option value="mg/dose">mg</option><option value="mg/kg/dose">mg/kg</option><option value="mg/jour">mg/jour</option><option value="mg/kg/jour">mg/kg/jour</option></select></div>
+        </label>
+        <label>Poids du patient
+          <div class="unit-input"><input id="weight" type="number" step="0.01" placeholder="ex : 70"><span>kg</span></div><input id="bsa" type="hidden">
+        </label>
+        <label>Fréquence
+          <select id="freqText"><option value="1">Unique</option><option value="2">2 fois/jour</option><option value="3">3 fois/jour</option><option value="4">4 fois/jour</option><option value="6">6 fois/jour</option></select>
+        </label>
       </div>
-      <label id="bsaWrap" class="hidden">Surface corporelle<input id="bsa" type="number" step="0.01"><span>m²</span></label>
-      <div class="result"><span>Dose / jour</span><b id="daily">—</b><small>mg</small></div>
-      <div class="result"><span>Dose / administration</span><b id="per">—</b><small>mg</small></div>
+
+      <div class="presentation-grid">
+        <div class="subcard">
+          <h3>Présentation disponible</h3>
+          <div id="presentationBox" class="empty-presentation">💊 <span>Sélectionnez un médicament<br>pour voir les présentations disponibles.</span></div>
+        </div>
+        <div class="subcard">
+          <h3>Données de la présentation</h3>
+          <div id="medInfo" class="presentation-data"><p>Concentration : <b>—</b></p><p>Volume : <b>—</b></p><p>Substance : <b>—</b></p></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="clear" class="secondary-action">♧ &nbsp; Réinitialiser</button>
+        <button id="calculateBtn" class="primary-action">▣ &nbsp; Calculer</button>
+      </div>
+
+      <div class="calc-results">
+        <div class="result"><span>Dose / jour</span><b id="daily">—</b><small>mg</small></div>
+        <div class="result"><span>Dose / administration</span><b id="per">—</b><small>mg</small></div>
+        <div class="result"><span>Volume à prélever</span><b id="vol">—</b><small>mL</small></div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Prélèvement</h2>
-      <div class="grid">
-        <label>Concentration<input id="conc" type="number" step="0.01"><span>mg/mL</span></label>
-        <label>Dose à prélever<input id="takeDose" type="number" step="0.01"><span>mg</span></label>
-      </div>
-      <div class="result"><span>Volume à prélever</span><b id="vol">—</b><small>mL</small></div>
+    <div class="feature-strip">
+      <div><b>▣ &nbsp; Calcul rapide</b><small>Dose, volume, débit</small></div>
+      <div><b>♢ &nbsp; Vérification</b><small>Double contrôle</small></div>
+      <div><b>▥ &nbsp; Traçabilité</b><small>Historique des calculs</small></div>
+      <div><b>📖 &nbsp; Entraînement</b><small>Exercices aléatoires</small></div>
     </div>
 
-    <div class="card">
-      <h2>Dilution</h2>
-      <div class="grid">
-        <label>C1<input id="c1" type="number" step="0.01"><span>mg/mL</span></label>
-        <label>V1<input id="v1" type="number" step="0.01"><span>mL</span></label>
-        <label>C2<input id="c2" type="number" step="0.01"><span>mg/mL</span></label>
-        <label>Volume final<input id="vf" type="number" step="0.1"><span>mL</span></label>
-      </div>
-      <div class="result"><span>V2 théorique</span><b id="v2">—</b><small>mL</small></div>
-      <div class="result"><span>Diluant à ajouter</span><b id="dil">—</b><small>mL</small></div>
-    </div>
+    <div class="important">🛡️ <b>Important :</b> Cet outil ne remplace pas votre jugement clinique. Vérifiez toujours les résultats et respectez les protocoles en vigueur.</div>
+  </section>
 
+  <section id="prelevement" class="page">
+    <div class="two-cards">
+      <div class="card">
+        <h2>💧 Prélèvement / Dilution</h2>
+        <div class="form-grid two">
+          <label>Concentration<input id="conc" type="number" step="0.01"><small>mg/mL</small></label>
+          <label>Dose à prélever<input id="takeDose" type="number" step="0.01"><small>mg</small></label>
+          <label>C1<input id="c1" type="number" step="0.01"><small>mg/mL</small></label>
+          <label>V1<input id="v1" type="number" step="0.01"><small>mL</small></label>
+          <label>C2<input id="c2" type="number" step="0.01"><small>mg/mL</small></label>
+          <label>Volume final<input id="vf" type="number" step="0.1"><small>mL</small></label>
+        </div>
+        <div class="calc-results">
+          <div class="result"><span>Volume à prélever</span><b id="vol2">—</b><small>mL</small></div>
+          <div class="result"><span>V2 théorique</span><b id="v2">—</b><small>mL</small></div>
+          <div class="result"><span>Diluant à ajouter</span><b id="dil">—</b><small>mL</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="perfusion" class="page">
     <div class="card">
-      <h2>Perfusion</h2>
-      <div class="grid">
-        <label>Volume final<input id="infVol" type="number" step="0.1"><span>mL</span></label>
-        <label>Durée<input id="mins" type="number" step="0.1"><span>minutes</span></label>
+      <h2>▣ &nbsp; Perfusion</h2>
+      <div class="form-grid two">
+        <label>Volume final<input id="infVol" type="number" step="0.1"><small>mL</small></label>
+        <label>Durée<input id="mins" type="number" step="0.1"><small>minutes</small></label>
       </div>
       <div class="result"><span>Débit</span><b id="rate">—</b><small>mL/h</small></div>
-    </div>
-
-    <div class="card">
-      <h2>Contrôle</h2>
-      <div id="summary">—</div>
     </div>
   </section>
 
   <section id="exercice" class="page">
     <div class="card">
-      <h2>🎲 Mode exercice</h2>
-      <p class="muted">La PWA crée automatiquement un cas. La correction reste cachée jusqu'à la vérification.</p>
+      <h2>🎓 Entraînement</h2>
+      <p class="muted">Un cas aléatoire est créé automatiquement. La correction reste cachée jusqu'à la vérification.</p>
       <div class="levels">
         <label><input type="radio" name="level" value="facile" checked> 🟢 Facile — dose + volume</label>
         <label><input type="radio" name="level" value="intermediaire"> 🟠 Intermédiaire — plusieurs prescriptions</label>
         <label><input type="radio" name="level" value="difficile"> 🔴 Difficile — dilution + débit</label>
       </div>
-      <button id="createExercise" class="primary">🎲 Générer un exercice</button>
+      <button id="createExercise" class="primary-action">🎲 Créer un exercice</button>
       <div id="quiz" class="hidden"></div>
       <div id="exerciseResult"></div>
     </div>
   </section>
+
+  <section id="medicaments" class="page">
+    <div class="card">
+      <h2>💊 Médicaments — base BDPM</h2>
+      <div id="bdpmStatus" class="status">Chargement de la base...</div>
+      <div class="autocomplete">
+        <input id="medSearch2" autocomplete="off" placeholder="Rechercher un médicament...">
+        <div id="medSuggestions2" class="suggestions hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reglages" class="page">
+    <div class="card">
+      <h2>⚙ Réglages</h2>
+      <p class="muted">Les données de médicaments sont stockées localement dans <code>medicaments.json</code>.</p>
+      <p class="muted">La base BDPM est mise à jour automatiquement par GitHub Actions.</p>
+    </div>
+  </section>
 </main>
 
-<footer><span>Médicalc • données locales</span><button id="clear">Effacer</button></footer>
+<footer>
+  <div>Médicalc • données locales</div>
+  <div class="footer-links"><span>Aide</span><span>Infos</span><span>Réglages</span></div>
+  <button id="clearFooter">Effacer</button>
+</footer>
+
 <script src="app.js"></script>
 </body>
 </html>

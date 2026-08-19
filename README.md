@@ -68,8 +68,19 @@ L'erreur 404 venait de l'utilisation de `cis_bdpm.txt`.
 Interface recentrée avec une largeur maximale d'environ 1008 px, cartes larges, en-tête rose et navigation en onglets, inspirée du gabarit fourni tout en conservant l'identité Médicalc.
 
 
-## Correctif BDPM v8
-L'import ne construit plus l'URL `telechargement.php?fichier=...` lui-même.
-Il lit d'abord la page officielle de téléchargement de la BDPM et découvre les
-liens réellement publiés par le site. Cela évite les erreurs 404 lorsque le site
-change son mécanisme d'URL.
+## Correctif BDPM v9
+La source de téléchargement utilise désormais la plateforme officielle ANSM actuelle :
+`rec-bdm.ansm.integra.fr/telechargement.php`.
+Le champ Médicament affiche les suggestions dès le clic/focus et les filtre pendant la saisie.
+
+
+## Template corrigé
+Interface alignée sur le nouveau modèle fourni :
+- conteneur central fixe d'environ 900 px sur desktop ;
+- barre supérieure et navigation alignées sur la même largeur ;
+- navigation multi-onglets ;
+- carte de calcul de prescription avec recherche BDPM ;
+- présentations disponibles et données de présentation ;
+- boutons Réinitialiser / Calculer ;
+- sections Prélèvement, Perfusion, Entraînement, Médicaments et Réglages ;
+- pied de page centré et aligné sur le même conteneur.
