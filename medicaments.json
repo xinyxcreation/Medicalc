@@ -1,0 +1,24 @@
+{
+  "source": "Base locale de démarrage; importer la BDPM avec import_bdpm.py",
+  "medicaments": [
+    {
+      "id": "SIMULATION",
+      "nom": "Médicament de simulation",
+      "substances": [
+        "Exemple pédagogique"
+      ],
+      "forme": "Solution",
+      "voies": [
+        "IV"
+      ],
+      "presentations": [
+        {
+          "libelle": "100 mg/mL",
+          "concentration_mg_ml": 100,
+          "volume_ml": 10
+        }
+      ],
+      "clinically_validated": false
+    }
+  ]
+}

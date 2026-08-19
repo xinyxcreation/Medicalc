@@ -1,0 +1,16 @@
+:root{--pink:#d84f83;--light:#fbe8f0;--bg:#f7f7fa;--border:#e2e2e8;--muted:#707078}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;color:#24242a}
+header{position:sticky;top:0;z-index:5;background:#fffefef5;backdrop-filter:blur(12px);padding:15px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+h1{margin:0;font-size:23px}header p{margin:3px 0 0;color:var(--muted);font-size:12px}
+button{border:0;border-radius:10px;padding:11px 13px;font-weight:750;background:#ececf1;color:#444;cursor:pointer}.primary,.tab.active{background:var(--pink);color:#fff}
+main{max-width:760px;margin:auto;padding:12px 14px 80px}.notice{background:#fff4d7;border:1px solid #efd28a;border-radius:14px;padding:12px;font-size:12px;line-height:1.4;margin-bottom:12px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}.tab{background:#e9e9ee}.page{display:none}.page.active{display:block}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 1px 2px #00000008}h2{margin:0 0 12px;font-size:17px}
+input,select{width:100%;min-height:44px;border:1px solid #d4d4dc;border-radius:10px;padding:11px;font-size:16px;background:#fff;margin-bottom:9px}
+label{font-size:12px;font-weight:750;display:flex;flex-direction:column;gap:4px}label span,.muted{color:var(--muted);font-weight:500}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.result{background:var(--light);border-radius:11px;padding:11px;margin-top:9px;display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:baseline}.result b{color:#9d2e5b;font-size:20px}.result small{color:var(--muted)}
+#medInfo{background:#faf0f5;color:#76284e;padding:10px;border-radius:10px;font-size:12px;line-height:1.45}.hidden{display:none}
+.levels label{display:block;background:#faf0f5;padding:10px;border-radius:10px;margin:7px 0;font-size:13px}.levels input{width:auto;min-height:auto;margin:0 7px 0 0}
+.question{padding:12px;background:#f6f6f8;border-radius:12px;margin:12px 0}.ok{border-left:5px solid #3d8b58;padding-left:9px}.bad{border-left:5px solid #c94747;padding-left:9px}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fffefef5;border-top:1px solid var(--border);padding:9px 14px;display:flex;justify-content:space-between;color:var(--muted);font-size:10px}
+footer button{background:transparent;color:#9d2e5b}.small{font-size:12px}@media(max-width:540px){.grid{grid-template-columns:1fr}}

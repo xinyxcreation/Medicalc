@@ -1,0 +1,28 @@
+{
+  "id": "identifiant",
+  "nom": "nom affiché",
+  "substances": [
+    "substance active"
+  ],
+  "forme": "forme",
+  "voies": [
+    "IV"
+  ],
+  "presentations": [
+    {
+      "libelle": "présentation",
+      "cip13": "CIP13",
+      "concentration_mg_ml": 100,
+      "volume_ml": 10
+    }
+  ],
+  "prescriptions": [
+    {
+      "unite": "mg/kg/jour",
+      "commentaire": "règle validée séparément"
+    }
+  ],
+  "source": "source",
+  "date_verification": "AAAA-MM-JJ",
+  "clinically_validated": false
+}
